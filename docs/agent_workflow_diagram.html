@@ -1177,6 +1177,19 @@
         <p>Tool wrappers live in <code>tradingagents/agents/utils/*_tools.py</code>. They delegate to <code>tradingagents/dataflows/interface.py</code>.</p>
       </div>
       <div class="section-body">
+        <div class="callout info" style="margin-bottom: 14px;">
+          <h3>Confirmed from code: analyst categories are not the same as data vendor categories</h3>
+          <p>
+            <code>GraphSetup.setup_graph()</code> and <code>TradingAgentsGraph._create_tool_nodes()</code>
+            use four analyst/tool-node keys: <code>market</code>, <code>social</code>,
+            <code>news</code>, and <code>fundamentals</code>. The actual vendor-routing
+            categories in <code>TOOLS_CATEGORIES</code> and <code>DEFAULT_CONFIG["data_vendors"]</code>
+            are <code>core_stock_apis</code>, <code>technical_indicators</code>,
+            <code>fundamental_data</code>, and <code>news_data</code>. The <code>social</code>
+            selector now runs the renamed Sentiment Analyst and additionally pre-fetches
+            StockTwits and Reddit outside the vendor router.
+          </p>
+        </div>
         <div class="matrix-grid">
           <div class="matrix-card">
             <h3>Routing Mechanism</h3>
