@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradingAgents Code Workflow</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --surface-alt: #eef2f7;
+      --ink: #162033;
+      --muted: #5c667a;
+      --line: #d8dee9;
+      --strong-line: #a9b3c5;
+      --green: #16835d;
+      --green-soft: #e6f5ef;
+      --red: #b63d45;
+      --red-soft: #fae8ea;
+      --amber: #a35f12;
+      --amber-soft: #fff1da;
+      --blue: #2d64b3;
+      --blue-soft: #e8f0fb;
+      --violet: #6550b9;
+      --violet-soft: #eeeafe;
+      --slate: #40516a;
+      --slate-soft: #edf0f5;
+      --code-bg: #101828;
+      --code-ink: #f1f5f9;
+      --shadow: 0 18px 50px rgba(22, 32, 51, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(232, 240, 251, 0.9), rgba(246, 247, 251, 0) 380px),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    code {
+      background: rgba(16, 24, 40, 0.07);
+      border-radius: 5px;
+      padding: 0.1rem 0.35rem;
+      color: #29364c;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    .page {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.7fr);
+      gap: 24px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .hero-main,
+    .hero-side,
+    .section {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-main {
+      padding: 28px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(2rem, 5vw, 4.25rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      margin: 18px 0 0;
+      max-width: 930px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .hero-side {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .quick-links a {
+      display: block;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-alt);
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .source-note {
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--slate-soft);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .source-note strong {
+      color: var(--ink);
+    }
+
+    .section {
+      margin-top: 22px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 20px 22px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.4vw, 2rem);
+      letter-spacing: 0;
+    }
+
+    .section-header p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 980px;
+    }
+
+    .section-body {
+      padding: 20px 22px 24px;
+    }
+
+    .repo-grid {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .repo-tree {
+      background: var(--code-bg);
+      color: var(--code-ink);
+      border-radius: 8px;
+      padding: 18px;
+      overflow: auto;
+      font-size: 0.9rem;
+      line-height: 1.48;
+    }
+
+    .repo-modules {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .module {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--surface);
+    }
+
+    .module h3,
+    .step h3,
+    .detail-card h3,
+    .matrix-card h3,
+    .callout h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .module p,
+    .step p,
+    .detail-card p,
+    .matrix-card p,
+    .callout p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .schema-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .schema-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .readme-points {
+      display: grid;
+      gap: 12px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tag.config { color: var(--slate); background: var(--slate-soft); border-color: #d9dee8; }
+    .tag.llm { color: var(--violet); background: var(--violet-soft); border-color: #ddd5fb; }
+    .tag.tool { color: var(--blue); background: var(--blue-soft); border-color: #d1def4; }
+    .tag.data { color: var(--green); background: var(--green-soft); border-color: #cde8dd; }
+    .tag.debate { color: var(--amber); background: var(--amber-soft); border-color: #f1d4a9; }
+    .tag.risk { color: var(--red); background: var(--red-soft); border-color: #f1cbd0; }
+
+    .flow {
+      display: grid;
+      gap: 14px;
+    }
+
+    .phase {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #ffffff, #fbfcff);
+      overflow: hidden;
+    }
+
+    .phase-title {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--surface-alt);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .phase-title h3 {
+      margin: 0;
+      font-size: 1.06rem;
+    }
+
+    .phase-title .number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--ink);
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 0.86rem;
+    }
+
+    .phase-grid {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      gap: 0;
+      min-height: 160px;
+    }
+
+    .phase-summary {
+      padding: 15px;
+      border-right: 1px solid var(--line);
+      background: #fbfcff;
+    }
+
+    .phase-summary .output {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--slate-soft);
+      color: var(--slate);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .phase-details {
+      padding: 15px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .detail-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #ffffff;
+    }
+
+    .detail-card ul,
+    .matrix-card ul,
+    .callout ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .detail-card li,
+    .matrix-card li,
+    .callout li {
+      margin: 4px 0;
+    }
+
+    .pipe {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      color: var(--strong-line);
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .analyst-lane {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-top: 5px solid var(--blue);
+      border-radius: 8px;
+      padding: 14px;
+      background: #ffffff;
+      min-height: 100%;
+    }
+
+    .step.sentiment {
+      border-top-color: var(--green);
+    }
+
+    .step.news {
+      border-top-color: var(--amber);
+    }
+
+    .step.fundamentals {
+      border-top-color: var(--violet);
+    }
+
+    .step .meta {
+      display: grid;
+      gap: 7px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 10px;
+      align-items: baseline;
+    }
+
+    .meta-row b {
+      color: var(--ink);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .edge-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .edge {
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--surface-alt);
+      color: var(--muted);
+      font-size: 0.86rem;
+      border: 1px solid var(--line);
+    }
+
+    .edge strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .matrix-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 14px;
+    }
+
+    .matrix-card table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.88rem;
+    }
+
+    .matrix-card th,
+    .matrix-card td {
+      vertical-align: top;
+      text-align: left;
+      padding: 9px 8px;
+      border-top: 1px solid var(--line);
+    }
+
+    .matrix-card th {
+      color: var(--ink);
+      background: #fbfcff;
+      font-size: 0.76rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .callout-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .callout {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #ffffff;
+    }
+
+    .callout.warning {
+      border-color: #efcf99;
+      background: #fff9ee;
+    }
+
+    .callout.info {
+      border-color: #c8d8ef;
+      background: #f4f8ff;
+    }
+
+    .compact-code {
+      margin-top: 10px;
+      background: var(--code-bg);
+      color: var(--code-ink);
+      border-radius: 8px;
+      padding: 12px;
+      overflow: auto;
+      font-size: 0.84rem;
+    }
+
+    .footer {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    @media (max-width: 1180px) {
+      .hero,
+      .repo-grid,
+      .schema-wrap,
+      .phase-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .phase-summary {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .phase-details,
+      .analyst-lane,
+      .edge-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 740px) {
+      .page {
+        width: min(100% - 18px, 1480px);
+        padding-top: 10px;
+      }
+
+      .hero-main,
+      .section-body,
+      .section-header {
+        padding: 16px;
+      }
+
+      .quick-links,
+      .repo-modules,
+      .phase-details,
+      .analyst-lane,
+      .edge-strip,
+      .matrix-grid,
+      .callout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .meta-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-main">
+        <p class="eyebrow">TradingAgents / code-level workflow</p>
+        <h1>Agent execution map from repo entry point to final portfolio decision</h1>
+        <p class="hero-copy">
+          This diagram is derived from <code>README.md</code>, the README schema image,
+          and the source under <code>tradingagents/</code> and <code>cli/</code>. It focuses on
+          the important implementation details: functions, files, data sources,
+          method calls, LangGraph edges, state fields, persistence, and report outputs.
+        </p>
+        <div class="legend" aria-label="Legend">
+          <span class="tag config">Config / state</span>
+          <span class="tag llm">LLM call</span>
+          <span class="tag tool">LangGraph tool loop</span>
+          <span class="tag data">External data source</span>
+          <span class="tag debate">Research debate</span>
+          <span class="tag risk">Risk decision</span>
+        </div>
+      </div>
+      <aside class="hero-side" aria-label="Page navigation">
+        <div class="quick-links">
+          <a href="#repo-map">Repo Map</a>
+          <a href="#readme-picture">README Picture</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#analysts">Analysts</a>
+          <a href="#data-sources">Data Sources</a>
+          <a href="#runtime-notes">Runtime Notes</a>
+        </div>
+        <div class="source-note">
+          <strong>Main orchestrator:</strong>
+          <code>tradingagents/graph/trading_graph.py</code> constructs the LLMs, ToolNodes,
+          LangGraph workflow, memory log, checkpoint integration, and signal processor.
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="repo-map">
+      <div class="section-header">
+        <h2>Repository Picture</h2>
+        <p>The agent is organized around graph orchestration, agent node factories, dataflow routing, LLM client adapters, and CLI/reporting glue.</p>
+      </div>
+      <div class="section-body">
+        <div class="repo-grid">
+          <pre class="repo-tree">TradingAgents/
+|-- README.md
+|-- main.py
+|-- cli/
+|   |-- main.py                 # interactive Typer/Rich runner
+|   |-- utils.py                # prompts, model/API-key selection helpers
+|   |-- stats_handler.py        # callback stats for LLM/tool usage
+|   `-- models.py               # AnalystType enum
+|-- tradingagents/
+|   |-- default_config.py       # env overrides, models, vendors, memory/checkpoint paths
+|   |-- graph/
+|   |   |-- trading_graph.py    # TradingAgentsGraph orchestration
+|   |   |-- setup.py            # LangGraph nodes and edges
+|   |   |-- conditional_logic.py# tool/debate/risk loop routing
+|   |   |-- propagation.py      # initial AgentState and invocation args
+|   |   |-- checkpointer.py     # SQLite checkpoint saver
+|   |   `-- signal_processing.py# parse final 5-tier rating
+|   |-- agents/
+|   |   |-- analysts/           # market, sentiment, news, fundamentals
+|   |   |-- researchers/        # bull and bear debate agents
+|   |   |-- trader/             # transaction proposal agent
+|   |   |-- risk_mgmt/          # aggressive, neutral, conservative agents
+|   |   |-- managers/           # research and portfolio managers
+|   |   |-- schemas.py          # structured output schemas
+|   |   `-- utils/              # tools, memory log, message cleanup
+|   |-- dataflows/
+|   |   |-- interface.py        # route_to_vendor()
+|   |   |-- y_finance.py        # Yahoo Finance price/fundamental data
+|   |   |-- yfinance_news.py    # Yahoo Finance news/search
+|   |   |-- alpha_vantage*.py   # Alpha Vantage APIs
+|   |   |-- reddit.py           # Reddit public JSON search
+|   |   `-- stocktwits.py       # StockTwits public symbol stream
+|   `-- llm_clients/
+|       |-- factory.py          # create_llm_client()
+|       |-- openai_client.py    # OpenAI-compatible providers
+|       |-- google_client.py
+|       |-- anthropic_client.py
+|       `-- azure_client.py
+|-- assets/
+|   `-- schema.png              # README framework picture
+|-- tests/
+`-- docs/
+    `-- agent_workflow_diagram.html</pre>
+          <div class="repo-modules">
+            <div class="module">
+              <h3>Graph Layer</h3>
+              <p><code>TradingAgentsGraph</code> builds ToolNodes, creates LLM clients, wires <code>GraphSetup</code>, then runs <code>graph.invoke()</code> or <code>graph.stream()</code>.</p>
+            </div>
+            <div class="module">
+              <h3>Agent Layer</h3>
+              <p>Each <code>create_*</code> factory returns a LangGraph node function that reads and writes fields on <code>AgentState</code>.</p>
+            </div>
+            <div class="module">
+              <h3>Data Layer</h3>
+              <p>LangChain tools call <code>route_to_vendor()</code>, which dispatches to yfinance or Alpha Vantage by category/tool config.</p>
+            </div>
+            <div class="module">
+              <h3>LLM Layer</h3>
+              <p><code>create_llm_client()</code> chooses OpenAI-compatible, Anthropic, Google, or Azure clients and returns LangChain-compatible chat models.</p>
+            </div>
+            <div class="module">
+              <h3>CLI Layer</h3>
+              <p><code>cli/main.py</code> collects ticker/date/models/analysts, streams graph chunks, renders progress, logs messages/tools, and writes reports.</p>
+            </div>
+            <div class="module">
+              <h3>Persistence Layer</h3>
+              <p><code>TradingMemoryLog</code> stores decisions and reflections; <code>checkpointer.py</code> stores LangGraph checkpoints in per-ticker SQLite DBs.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="readme-picture">
+      <div class="section-header">
+        <h2>README Picture and Code Reality</h2>
+        <p>The README shows the high-level firm-style process. The source code implements that process as a LangGraph state machine with explicit tool loops and debate loops.</p>
+      </div>
+      <div class="section-body">
+        <div class="schema-wrap">
+          <img src="../assets/schema.png" alt="TradingAgents framework schema from README" />
+          <div class="readme-points">
+            <div class="module">
+              <h3>Analyst Team</h3>
+              <p>README: market, social media, news, fundamentals. Code: <code>market</code>, <code>social</code> selector mapped to the renamed <code>Sentiment Analyst</code>, <code>news</code>, and <code>fundamentals</code>.</p>
+            </div>
+            <div class="module">
+              <h3>Research Team</h3>
+              <p>README: bullish and bearish discussion. Code: <code>Bull Researcher</code> and <code>Bear Researcher</code> alternate until <code>2 * max_debate_rounds</code>.</p>
+            </div>
+            <div class="module">
+              <h3>Risk and Portfolio</h3>
+              <p>README: aggressive, neutral, conservative risk team sends a proposal to manager. Code: three risk debaters alternate until <code>3 * max_risk_discuss_rounds</code>, then <code>Portfolio Manager</code> emits the final rating.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="workflow">
+      <div class="section-header">
+        <h2>End-to-End Workflow</h2>
+        <p>Primary package usage calls <code>TradingAgentsGraph.propagate(ticker, trade_date)</code>. The CLI streams the compiled graph directly after constructing the same graph object.</p>
+      </div>
+      <div class="section-body">
+        <div class="flow">
+          <article class="phase">
+            <div class="phase-title">
+              <span class="number">1</span>
+              <h3>Invocation and User Inputs</h3>
+              <span class="tag config">entry</span>
+            </div>
+            <div class="phase-grid">
+              <div class="phase-summary">
+                <p>Users enter through <code>main.py</code>, package code, or the interactive CLI.</p>
+                <div class="output">Outputs: ticker, analysis date, selected analysts, models, provider, research depth, language.</div>
+              </div>
+              <div class="phase-details">
+                <div class="detail-card">
+                  <h3>Package Path</h3>
+                  <p><code>main.py</code> creates <code>TradingAgentsGraph(debug=True, config=config)</code>, then calls <code>ta.propagate("NVDA", "2024-05-10")</code>.</p>
+                </div>
+                <div class="detail-card">
+                  <h3>CLI Path</h3>
+                  <p><code>cli/main.py</code> uses Typer and Questionary. <code>run_analysis()</code> calls <code>get_user_selections()</code>, then constructs config and graph.</p>
+                </div>
+                <div class="detail-card">
+                  <h3>Config Source</h3>
+                  <p><code>DEFAULT_CONFIG</code> reads <code>TRADINGAGENTS_*</code> env vars, result/cache paths, memory log path, LLM choices, and data vendor settings.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="pipe">then</div>
+
+          <article class="phase">
+            <div class="phase-title">
+              <span class="number">2</span>
+              <h3>Graph Bootstrap</h3>
+              <span class="tag config">TradingAgentsGraph.__init__</span>
+              <span class="tag llm">LLM clients</span>
+            </div>
+            <div class="phase-grid">
+              <div class="phase-summary">
+                <p><code>TradingAgentsGraph.__init__</code> builds the runtime objects and compiles the LangGraph workflow.</p>
+                <div class="output">Outputs: <code>self.workflow</code>, compiled <code>self.graph</code>, LLMs, ToolNodes, memory log.</div>
+              </div>
+              <div class="phase-details">
+                <div class="detail-card">
+                  <h3>Files</h3>
+                  <ul>
+                    <li><code>tradingagents/graph/trading_graph.py</code></li>
+                    <li><code>tradingagents/default_config.py</code></li>
+                    <li><code>tradingagents/dataflows/config.py</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Methods Called</h3>
+                  <ul>
+                    <li><code>set_config(config)</code></li>
+                    <li><code>_get_provider_kwargs()</code></li>
+                    <li><code>create_llm_client(...).get_llm()</code></li>
+                    <li><code>_create_tool_nodes()</code></li>
+                    <li><code>GraphSetup.setup_graph()</code></li>
+                    <li><code>workflow.compile()</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Data / State</h3>
+                  <ul>
+                    <li>Creates <code>data_cache_dir</code> and <code>results_dir</code>.</li>
+                    <li>Initializes <code>TradingMemoryLog</code>.</li>
+                    <li>Stores callbacks for LLM/tool stats.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="pipe">then</div>
+
+          <article class="phase">
+            <div class="phase-title">
+              <span class="number">3</span>
+              <h3>ToolNode Registry</h3>
+              <span class="tag tool">LangChain tools</span>
+              <span class="tag data">route_to_vendor</span>
+            </div>
+            <div class="phase-grid">
+              <div class="phase-summary">
+                <p><code>_create_tool_nodes()</code> groups tool functions by analyst category. These ToolNodes execute tool calls emitted by LLM analyst nodes.</p>
+                <div class="output">Outputs: <code>tools_market</code>, <code>tools_social</code>, <code>tools_news</code>, <code>tools_fundamentals</code>.</div>
+              </div>
+              <div class="phase-details">
+                <div class="detail-card">
+                  <h3>Market Tools</h3>
+                  <p><code>ToolNode([get_stock_data, get_indicators])</code></p>
+                </div>
+                <div class="detail-card">
+                  <h3>News/Social Tools</h3>
+                  <p><code>social</code> ToolNode contains <code>get_news</code>. <code>news</code> ToolNode contains <code>get_news</code>, <code>get_global_news</code>, <code>get_insider_transactions</code>.</p>
+                </div>
+                <div class="detail-card">
+                  <h3>Fundamental Tools</h3>
+                  <p><code>ToolNode([get_fundamentals, get_balance_sheet, get_cashflow, get_income_statement])</code></p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="pipe">then</div>
+
+          <article class="phase">
+            <div class="phase-title">
+              <span class="number">4</span>
+              <h3>State Initialization and Resume Hooks</h3>
+              <span class="tag config">AgentState</span>
+              <span class="tag config">checkpoint</span>
+            </div>
+            <div class="phase-grid">
+              <div class="phase-summary">
+                <p><code>propagate()</code> prepares memory and optional checkpointing, then delegates to <code>_run_graph()</code>.</p>
+                <div class="output">Outputs: initialized <code>AgentState</code> and graph invocation args.</div>
+              </div>
+              <div class="phase-details">
+                <div class="detail-card">
+                  <h3>Methods Called</h3>
+                  <ul>
+                    <li><code>_resolve_pending_entries(ticker)</code></li>
+                    <li><code>get_checkpointer(data_cache_dir, ticker)</code></li>
+                    <li><code>checkpoint_step(...)</code></li>
+                    <li><code>thread_id(ticker, date)</code></li>
+                    <li><code>Propagator.create_initial_state(...)</code></li>
+                    <li><code>Propagator.get_graph_args()</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Initial State Fields</h3>
+                  <ul>
+                    <li><code>messages</code>: human message with ticker.</li>
+                    <li><code>company_of_interest</code>, <code>trade_date</code>, <code>past_context</code>.</li>
+                    <li><code>investment_debate_state</code> and <code>risk_debate_state</code>.</li>
+                    <li>Empty report fields for market, sentiment, news, fundamentals.</li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Data Source</h3>
+                  <ul>
+                    <li>Past lessons from <code>TradingMemoryLog.get_past_context()</code>.</li>
+                    <li>Checkpoint rows in per-ticker SQLite DBs under <code>data_cache_dir/checkpoints</code>.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="analysts">
+      <div class="section-header">
+        <h2>Analyst Pipeline</h2>
+        <p><code>GraphSetup.setup_graph()</code> adds analyst nodes in <code>selected_analysts</code> order. Default order is market, social, news, fundamentals.</p>
+      </div>
+      <div class="section-body">
+        <div class="analyst-lane">
+          <article class="step">
+            <h3>Market Analyst</h3>
+            <p>Technical price/indicator report.</p>
+            <div class="meta">
+              <div class="meta-row"><b>Factory</b><span><code>create_market_analyst(llm)</code></span></div>
+              <div class="meta-row"><b>File</b><span><code>tradingagents/agents/analysts/market_analyst.py</code></span></div>
+              <div class="meta-row"><b>Methods</b><span><code>llm.bind_tools([get_stock_data, get_indicators])</code>, then <code>chain.invoke(state["messages"])</code></span></div>
+              <div class="meta-row"><b>Tools</b><span><code>get_stock_data</code>, <code>get_indicators</code></span></div>
+              <div class="meta-row"><b>Data</b><span>OHLCV from yfinance or Alpha Vantage; indicators from stockstats/yfinance cache or Alpha Vantage TA endpoints.</span></div>
+              <div class="meta-row"><b>Writes</b><span><code>market_report</code> when no tool calls remain.</span></div>
+            </div>
+          </article>
+
+          <article class="step sentiment">
+            <h3>Sentiment Analyst</h3>
+            <p>Grounded multi-source sentiment report. Selector key remains <code>social</code> for compatibility.</p>
+            <div class="meta">
+              <div class="meta-row"><b>Factory</b><span><code>create_sentiment_analyst(llm)</code></span></div>
+              <div class="meta-row"><b>File</b><span><code>tradingagents/agents/analysts/sentiment_analyst.py</code></span></div>
+              <div class="meta-row"><b>Methods</b><span><code>get_news.func(...)</code>, <code>fetch_stocktwits_messages(...)</code>, <code>fetch_reddit_posts(...)</code>, then <code>llm.invoke()</code>.</span></div>
+              <div class="meta-row"><b>Tools</b><span>No LangGraph tool loop; data is pre-fetched into prompt blocks.</span></div>
+              <div class="meta-row"><b>Data</b><span>Yahoo Finance or Alpha Vantage news, StockTwits public symbol stream, Reddit public search in finance subreddits.</span></div>
+              <div class="meta-row"><b>Writes</b><span><code>sentiment_report</code>.</span></div>
+            </div>
+          </article>
+
+          <article class="step news">
+            <h3>News Analyst</h3>
+            <p>Company-specific and macro news report.</p>
+            <div class="meta">
+              <div class="meta-row"><b>Factory</b><span><code>create_news_analyst(llm)</code></span></div>
+              <div class="meta-row"><b>File</b><span><code>tradingagents/agents/analysts/news_analyst.py</code></span></div>
+              <div class="meta-row"><b>Methods</b><span><code>llm.bind_tools([get_news, get_global_news])</code>, then <code>chain.invoke(...)</code>.</span></div>
+              <div class="meta-row"><b>Tools</b><span><code>get_news</code>, <code>get_global_news</code>. The graph ToolNode also registers <code>get_insider_transactions</code>, but this agent currently binds only the first two tools.</span></div>
+              <div class="meta-row"><b>Data</b><span>Yahoo Finance ticker news and Search by default; Alpha Vantage <code>NEWS_SENTIMENT</code> when configured.</span></div>
+              <div class="meta-row"><b>Writes</b><span><code>news_report</code> when no tool calls remain.</span></div>
+            </div>
+          </article>
+
+          <article class="step fundamentals">
+            <h3>Fundamentals Analyst</h3>
+            <p>Company profile, statements, financial health, and valuation context.</p>
+            <div class="meta">
+              <div class="meta-row"><b>Factory</b><span><code>create_fundamentals_analyst(llm)</code></span></div>
+              <div class="meta-row"><b>File</b><span><code>tradingagents/agents/analysts/fundamentals_analyst.py</code></span></div>
+              <div class="meta-row"><b>Methods</b><span><code>llm.bind_tools([...])</code>, then <code>chain.invoke(...)</code>.</span></div>
+              <div class="meta-row"><b>Tools</b><span><code>get_fundamentals</code>, <code>get_balance_sheet</code>, <code>get_cashflow</code>, <code>get_income_statement</code>.</span></div>
+              <div class="meta-row"><b>Data</b><span>yfinance <code>Ticker.info</code> and financial statements, or Alpha Vantage overview/balance/cash flow/income statement endpoints.</span></div>
+              <div class="meta-row"><b>Writes</b><span><code>fundamentals_report</code> when no tool calls remain.</span></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="edge-strip">
+          <div class="edge"><strong>START edge</strong><code>START -> {first selected analyst}</code>.</div>
+          <div class="edge"><strong>Tool condition</strong><code>should_continue_*</code> routes to <code>tools_*</code> if the last AI message has tool calls.</div>
+          <div class="edge"><strong>Tool return</strong><code>tools_* -> Analyst</code>, so the analyst can read tool results and decide whether to call more tools.</div>
+          <div class="edge"><strong>Message cleanup</strong>If no tool calls remain, <code>Msg Clear *</code> runs <code>create_msg_delete()</code>.</div>
+          <div class="edge"><strong>Next edge</strong>Cleanup sends state to the next selected analyst, or to <code>Bull Researcher</code> after the last analyst.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Debate, Trading, Risk, and Final Decision</h2>
+        <p>After analyst reports are populated, all remaining agents consume reports from <code>AgentState</code> and update debate/decision fields.</p>
+      </div>
+      <div class="section-body">
+        <div class="flow">
+          <article class="phase">
+            <div class="phase-title">
+              <span class="number">5</span>
+              <h3>Bull/Bear Research Debate</h3>
+              <span class="tag debate">loop</span>
+              <span class="tag llm">quick LLM</span>
+            </div>
+            <div class="phase-grid">
+              <div class="phase-summary">
+                <p><code>Bull Researcher</code> and <code>Bear Researcher</code> alternate arguments using analyst reports and debate history.</p>
+                <div class="output">Writes: <code>investment_debate_state.history</code>, <code>bull_history</code>, <code>bear_history</code>, <code>current_response</code>, <code>count</code>.</div>
+              </div>
+              <div class="phase-details">
+                <div class="detail-card">
+                  <h3>Files</h3>
+                  <ul>
+                    <li><code>tradingagents/agents/researchers/bull_researcher.py</code></li>
+                    <li><code>tradingagents/agents/researchers/bear_researcher.py</code></li>
+                    <li><code>tradingagents/graph/conditional_logic.py</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Methods Called</h3>
+                  <ul>
+                    <li><code>create_bull_researcher()</code></li>
+                    <li><code>create_bear_researcher()</code></li>
+                    <li><code>llm.invoke(prompt)</code></li>
+                    <li><code>should_continue_debate(state)</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Routing Rule</h3>
+                  <p>If <code>count >= 2 * max_debate_rounds</code>, route to <code>Research Manager</code>. Otherwise alternate based on whether <code>current_response</code> starts with <code>Bull</code>.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="pipe">then</div>
+
+          <article class="phase">
+            <div class="phase-title">
+              <span class="number">6</span>
+              <h3>Research Manager and Trader</h3>
+              <span class="tag llm">structured output</span>
+              <span class="tag debate">handoff</span>
+            </div>
+            <div class="phase-grid">
+              <div class="phase-summary">
+                <p>The Research Manager turns the bull/bear debate into a 5-tier investment plan; the Trader turns that plan into a Buy/Hold/Sell transaction proposal.</p>
+                <div class="output">Writes: <code>investment_plan</code>, <code>trader_investment_plan</code>, and a compatibility <code>FINAL TRANSACTION PROPOSAL</code> line.</div>
+              </div>
+              <div class="phase-details">
+                <div class="detail-card">
+                  <h3>Research Manager</h3>
+                  <ul>
+                    <li>File: <code>tradingagents/agents/managers/research_manager.py</code></li>
+                    <li>Schema: <code>ResearchPlan</code></li>
+                    <li>Renderer: <code>render_research_plan()</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Trader</h3>
+                  <ul>
+                    <li>File: <code>tradingagents/agents/trader/trader.py</code></li>
+                    <li>Schema: <code>TraderProposal</code></li>
+                    <li>Renderer: <code>render_trader_proposal()</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Shared Methods</h3>
+                  <ul>
+                    <li><code>bind_structured(llm, Schema, agent_name)</code></li>
+                    <li><code>invoke_structured_or_freetext(...)</code></li>
+                    <li>Fallback to <code>plain_llm.invoke(...)</code> on unsupported or failed structured output.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="pipe">then</div>
+
+          <article class="phase">
+            <div class="phase-title">
+              <span class="number">7</span>
+              <h3>Risk Debate Loop</h3>
+              <span class="tag risk">risk team</span>
+              <span class="tag llm">quick LLM</span>
+            </div>
+            <div class="phase-grid">
+              <div class="phase-summary">
+                <p>Risk debaters argue about the Trader's proposal from aggressive, conservative, and neutral perspectives.</p>
+                <div class="output">Writes: <code>risk_debate_state.history</code>, speaker-specific histories, latest speaker, and response fields.</div>
+              </div>
+              <div class="phase-details">
+                <div class="detail-card">
+                  <h3>Files</h3>
+                  <ul>
+                    <li><code>tradingagents/agents/risk_mgmt/aggressive_debator.py</code></li>
+                    <li><code>tradingagents/agents/risk_mgmt/conservative_debator.py</code></li>
+                    <li><code>tradingagents/agents/risk_mgmt/neutral_debator.py</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Methods Called</h3>
+                  <ul>
+                    <li><code>create_aggressive_debator()</code></li>
+                    <li><code>create_conservative_debator()</code></li>
+                    <li><code>create_neutral_debator()</code></li>
+                    <li><code>should_continue_risk_analysis(state)</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Routing Rule</h3>
+                  <p>If <code>count >= 3 * max_risk_discuss_rounds</code>, route to <code>Portfolio Manager</code>. Otherwise route Aggressive -> Conservative -> Neutral -> Aggressive.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="pipe">then</div>
+
+          <article class="phase">
+            <div class="phase-title">
+              <span class="number">8</span>
+              <h3>Portfolio Manager Final Decision</h3>
+              <span class="tag risk">final rating</span>
+              <span class="tag llm">structured output</span>
+            </div>
+            <div class="phase-grid">
+              <div class="phase-summary">
+                <p>The Portfolio Manager synthesizes the risk debate, Research Manager plan, Trader proposal, and prior lessons into the final decision.</p>
+                <div class="output">Writes: <code>final_trade_decision</code> and <code>risk_debate_state.judge_decision</code>. Graph edge: <code>Portfolio Manager -> END</code>.</div>
+              </div>
+              <div class="phase-details">
+                <div class="detail-card">
+                  <h3>File</h3>
+                  <p><code>tradingagents/agents/managers/portfolio_manager.py</code></p>
+                </div>
+                <div class="detail-card">
+                  <h3>Methods Called</h3>
+                  <ul>
+                    <li><code>create_portfolio_manager()</code></li>
+                    <li><code>bind_structured(..., PortfolioDecision, ...)</code></li>
+                    <li><code>invoke_structured_or_freetext(...)</code></li>
+                    <li><code>render_pm_decision()</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Input Data</h3>
+                  <ul>
+                    <li><code>investment_plan</code></li>
+                    <li><code>trader_investment_plan</code></li>
+                    <li><code>risk_debate_state.history</code></li>
+                    <li><code>past_context</code> from memory log, when present.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="pipe">then</div>
+
+          <article class="phase">
+            <div class="phase-title">
+              <span class="number">9</span>
+              <h3>Persistence and Return Value</h3>
+              <span class="tag config">logs</span>
+              <span class="tag data">memory/reflection</span>
+            </div>
+            <div class="phase-grid">
+              <div class="phase-summary">
+                <p>After graph completion, the package path saves state, stores the decision, clears checkpoints, and extracts the rating.</p>
+                <div class="output">Return shape: <code>(final_state, decision)</code>, where <code>decision</code> is one of Buy, Overweight, Hold, Underweight, Sell.</div>
+              </div>
+              <div class="phase-details">
+                <div class="detail-card">
+                  <h3>Methods Called</h3>
+                  <ul>
+                    <li><code>_log_state(trade_date, final_state)</code></li>
+                    <li><code>memory_log.store_decision(...)</code></li>
+                    <li><code>clear_checkpoint(...)</code></li>
+                    <li><code>process_signal(...)</code></li>
+                    <li><code>SignalProcessor.process_signal()</code></li>
+                    <li><code>parse_rating()</code></li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Files Written</h3>
+                  <ul>
+                    <li><code>results_dir/{ticker}/TradingAgentsStrategy_logs/full_states_log_{date}.json</code></li>
+                    <li><code>memory_log_path</code>, default <code>~/.tradingagents/memory/trading_memory.md</code></li>
+                    <li>Checkpoint SQLite rows are deleted for the completed ticker/date.</li>
+                  </ul>
+                </div>
+                <div class="detail-card">
+                  <h3>Reflection Data</h3>
+                  <p>At the start of a later same-ticker run, pending entries are resolved by fetching ticker and benchmark returns through yfinance, then <code>Reflector.reflect_on_final_decision()</code> creates a lesson for future PM prompts.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="data-sources">
+      <div class="section-header">
+        <h2>Tool and Data Source Matrix</h2>
+        <p>Tool wrappers live in <code>tradingagents/agents/utils/*_tools.py</code>. They delegate to <code>tradingagents/dataflows/interface.py</code>.</p>
+      </div>
+      <div class="section-body">
+        <div class="matrix-grid">
+          <div class="matrix-card">
+            <h3>Routing Mechanism</h3>
+            <p><code>route_to_vendor(method, *args, **kwargs)</code> resolves category, reads config, tries primary vendors, and falls back only on <code>AlphaVantageRateLimitError</code>.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Config key</th>
+                  <th>Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>data_vendors.core_stock_apis</code></td>
+                  <td>Default source for <code>get_stock_data</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>data_vendors.technical_indicators</code></td>
+                  <td>Default source for <code>get_indicators</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>data_vendors.fundamental_data</code></td>
+                  <td>Default source for fundamental statement tools.</td>
+                </tr>
+                <tr>
+                  <td><code>data_vendors.news_data</code></td>
+                  <td>Default source for ticker/global news and insider transactions.</td>
+                </tr>
+                <tr>
+                  <td><code>tool_vendors.{method}</code></td>
+                  <td>Tool-level override that wins over the category default.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="matrix-card">
+            <h3>Default Vendors</h3>
+            <p><code>DEFAULT_CONFIG</code> sets all four data categories to <code>yfinance</code>. Alpha Vantage is available when configured and requires <code>ALPHA_VANTAGE_API_KEY</code>.</p>
+            <div class="compact-code"><pre>"data_vendors": {
+  "core_stock_apis": "yfinance",
+  "technical_indicators": "yfinance",
+  "fundamental_data": "yfinance",
+  "news_data": "yfinance"
+}</pre></div>
+          </div>
+        </div>
+
+        <div class="matrix-grid" style="margin-top: 14px;">
+          <div class="matrix-card">
+            <h3>Market and Technical Data</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tool</th>
+                  <th>Data source and method</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>get_stock_data</code></td>
+                  <td>yfinance: <code>yf.Ticker(symbol).history(start, end)</code>. Alpha Vantage: <code>TIME_SERIES_DAILY_ADJUSTED</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>get_indicators</code></td>
+                  <td>yfinance: <code>load_ohlcv()</code> cache plus stockstats indicators. Alpha Vantage: <code>SMA</code>, <code>EMA</code>, <code>MACD</code>, <code>RSI</code>, <code>BBANDS</code>, <code>ATR</code>.</td>
+                </tr>
+                <tr>
+                  <td>Cache guard</td>
+                  <td><code>load_ohlcv()</code> filters rows to <code>Date <= curr_date</code> to reduce look-ahead bias and uses <code>safe_ticker_component()</code> for cache filenames.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="matrix-card">
+            <h3>Fundamental Data</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tool</th>
+                  <th>Data source and method</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>get_fundamentals</code></td>
+                  <td>yfinance: <code>Ticker.info</code>. Alpha Vantage: <code>OVERVIEW</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>get_balance_sheet</code></td>
+                  <td>yfinance: <code>quarterly_balance_sheet</code> or <code>balance_sheet</code>. Alpha Vantage: <code>BALANCE_SHEET</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>get_cashflow</code></td>
+                  <td>yfinance: <code>quarterly_cashflow</code> or <code>cashflow</code>. Alpha Vantage: <code>CASH_FLOW</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>get_income_statement</code></td>
+                  <td>yfinance: <code>quarterly_income_stmt</code> or <code>income_stmt</code>. Alpha Vantage: <code>INCOME_STATEMENT</code>.</td>
+                </tr>
+                <tr>
+                  <td>Date guard</td>
+                  <td>yfinance and Alpha Vantage statement data are filtered to remove periods after <code>curr_date</code>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="matrix-grid" style="margin-top: 14px;">
+          <div class="matrix-card">
+            <h3>News and Sentiment Data</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Data source and method</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>get_news</code></td>
+                  <td>yfinance: <code>Ticker(ticker).get_news(count=...)</code>. Alpha Vantage: <code>NEWS_SENTIMENT</code> with ticker and time range.</td>
+                </tr>
+                <tr>
+                  <td><code>get_global_news</code></td>
+                  <td>yfinance: <code>yf.Search(query, news_count=...)</code> over configured macro queries. Alpha Vantage: <code>NEWS_SENTIMENT</code> with macro topics.</td>
+                </tr>
+                <tr>
+                  <td><code>fetch_stocktwits_messages</code></td>
+                  <td>Public StockTwits endpoint <code>/api/2/streams/symbol/{ticker}.json</code>; no API key.</td>
+                </tr>
+                <tr>
+                  <td><code>fetch_reddit_posts</code></td>
+                  <td>Public Reddit JSON search across <code>wallstreetbets</code>, <code>stocks</code>, and <code>investing</code>; no API key.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="matrix-card">
+            <h3>LLM Providers</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Provider group</th>
+                  <th>Factory branch</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>OpenAI-compatible</td>
+                  <td><code>openai</code>, <code>xai</code>, <code>deepseek</code>, <code>qwen</code>, <code>glm</code>, <code>minimax</code>, <code>ollama</code>, <code>openrouter</code> use <code>OpenAIClient</code>.</td>
+                </tr>
+                <tr>
+                  <td>Anthropic</td>
+                  <td><code>AnthropicClient</code> with optional effort config.</td>
+                </tr>
+                <tr>
+                  <td>Google</td>
+                  <td><code>GoogleClient</code> with optional thinking level.</td>
+                </tr>
+                <tr>
+                  <td>Azure</td>
+                  <td><code>AzureOpenAIClient</code>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="runtime-notes">
+      <div class="section-header">
+        <h2>Runtime Notes and Code-Level Caveats</h2>
+        <p>These are important when reading the workflow against the current codebase.</p>
+      </div>
+      <div class="section-body">
+        <div class="callout-grid">
+          <div class="callout info">
+            <h3>Message Cleanup Between Analysts</h3>
+            <p><code>create_msg_delete()</code> emits <code>RemoveMessage</code> operations for prior messages, then adds a <code>HumanMessage("Continue")</code>. Reports remain in <code>AgentState</code>, but chat history is cleared before the next analyst.</p>
+          </div>
+          <div class="callout info">
+            <h3>Structured Output Is Decision-Stage Only</h3>
+            <p><code>Research Manager</code>, <code>Trader</code>, and <code>Portfolio Manager</code> use Pydantic structured output when supported. Analyst, researcher, and risk-debater nodes are natural-language LLM calls.</p>
+          </div>
+          <div class="callout warning">
+            <h3>CLI Streaming Bypasses Some <code>propagate()</code> Hooks</h3>
+            <p><code>cli/main.py</code> constructs <code>TradingAgentsGraph</code>, then directly streams <code>graph.graph.stream(init_agent_state, **args)</code>. That path has its own report saving, but it does not call <code>TradingAgentsGraph.propagate()</code>, so the package-path memory logging, full-state JSON logging, checkpoint recompile/thread-id setup, and checkpoint clearing are not executed there in the current code.</p>
+          </div>
+          <div class="callout warning">
+            <h3>News Tool Registration Detail</h3>
+            <p>The graph-level <code>tools_news</code> ToolNode registers <code>get_insider_transactions</code>, but <code>create_news_analyst()</code> binds only <code>get_news</code> and <code>get_global_news</code>. Since LLM tool calls are constrained by bound tools, insider transactions are not normally requested by the News Analyst.</p>
+          </div>
+          <div class="callout info">
+            <h3>Outcome Reflection Timing</h3>
+            <p>Decisions are appended as pending. A later same-ticker run resolves prior outcomes by fetching ticker and benchmark history from yfinance and then injecting lessons into the Portfolio Manager prompt.</p>
+          </div>
+          <div class="callout info">
+            <h3>Final Signal Parsing</h3>
+            <p><code>SignalProcessor</code> no longer calls an LLM. It parses the <code>**Rating**</code> field from the Portfolio Manager markdown with <code>parse_rating()</code>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer">
+      File generated for local architecture review: <code>docs/agent_workflow_diagram.html</code>.
+    </p>
+  </main>
+</body>
+</html>
